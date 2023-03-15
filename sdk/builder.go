@@ -15,9 +15,11 @@ var (
 	DefaultFactories = &struct {
 		PrometheusMetrics scraper.Factory
 		OtelTracing       scraper.Factory
+		Logging           scraper.Factory
 	}{
 		PrometheusMetrics: &scraper.PrometheusMetricsFactory{},
 		OtelTracing:       &scraper.OtelTracingFactory{},
+		Logging:           &scraper.LoggingFactory{},
 	}
 )
 
@@ -36,11 +38,14 @@ type Builder struct {
 
 func NewBuilder() *Builder {
 	factories := []scraper.Factory{}
-	if enabled := monitoring.EnvBool("PROMETHEUS_METRICS_ENABLED", false); !enabled {
+	if enabled := monitoring.EnvBool("PROMETHEUS_METRICS_ENABLED", false); enabled {
 		factories = append(factories, DefaultFactories.PrometheusMetrics)
 	}
-	if enabled := monitoring.EnvBool("OTEL_TRACING_ENABLED", false); !enabled {
+	if enabled := monitoring.EnvBool("OTEL_TRACING_ENABLED", false); enabled {
 		factories = append(factories, DefaultFactories.OtelTracing)
+	}
+	if len(factories) == 0 {
+		factories = append(factories, DefaultFactories.Logging)
 	}
 
 	return &Builder{
@@ -96,6 +101,14 @@ func (b *Builder) WithFactories(values ...scraper.Factory) *Builder {
 
 func (b *Builder) AddFactories(values ...scraper.Factory) *Builder {
 	b.opts.ScraperFactories = append(b.opts.ScraperFactories, values...)
+
+	return b
+}
+
+func (b *Builder) WithDefaultFactories(values ...scraper.Factory) *Builder {
+	if len(b.opts.ScraperFactories) == 0 {
+		b.opts.ScraperFactories = values
+	}
 
 	return b
 }

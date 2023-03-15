@@ -9,6 +9,8 @@ type empty struct {
 	ctx context.Context
 }
 
+var _ Scraper = (*empty)(nil)
+
 func NewEmpty(ctx context.Context) Scraper {
 	if ctx == nil {
 		ctx = context.Background()

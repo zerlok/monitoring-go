@@ -148,6 +148,8 @@ type prometheusMetric struct {
 	totalEvents    *prometheus.CounterVec
 }
 
+var _ Scraper = (*prometheusMetric)(nil)
+
 func (m *prometheusMetric) Context() context.Context {
 	return m.ctx
 }

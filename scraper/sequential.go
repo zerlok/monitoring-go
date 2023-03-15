@@ -13,6 +13,8 @@ type sequential struct {
 	seq []Scraper
 }
 
+var _ Scraper = (*sequential)(nil)
+
 func (s *sequential) Context() (ctx context.Context) {
 	ls := s.last()
 	if ls != nil {

@@ -23,6 +23,8 @@ type Sdk struct {
 	registry     []scraper.Factory
 }
 
+var _ ScrapeBuilder = (*Sdk)(nil)
+
 type ScrapeBuilder interface {
 	Group() ScrapeBuilder
 	GroupName(string) ScrapeBuilder
@@ -148,6 +150,8 @@ type group struct {
 	sdk  *Sdk
 	name string
 }
+
+var _ ScrapeBuilder = (*group)(nil)
 
 func (g *group) Group() ScrapeBuilder {
 	return g.GroupName(callerFunction(1))

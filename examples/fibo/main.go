@@ -10,7 +10,10 @@ import (
 )
 
 var (
-	monitoring       = sdk.NewBuilder().Build()
+	monitoring = sdk.NewBuilder().WithFactories(
+		sdk.DefaultFactories.PrometheusMetrics,
+		sdk.DefaultFactories.OtelTracing,
+	).Build()
 	calculationGroup = monitoring.GroupName("calculation")
 )
 

@@ -99,6 +99,8 @@ type InMemory struct {
 	ended  chan<- *InMemory
 }
 
+var _ Scraper = (*InMemory)(nil)
+
 func (i *InMemory) Context() context.Context {
 	return i.ctx
 }

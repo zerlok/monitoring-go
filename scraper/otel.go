@@ -76,6 +76,8 @@ type otelTrace struct {
 	span trace.Span
 }
 
+var _ Scraper = (*otelTrace)(nil)
+
 func (t *otelTrace) Context() context.Context {
 	return t.ctx
 }
@@ -89,19 +91,22 @@ func (t *otelTrace) AddEvent(name string) {
 }
 
 func (t *otelTrace) AddError(err error) {
-	if err != nil {
-		t.span.RecordError(err)
-		t.span.SetStatus(codes.Error, err.Error())
-	} else {
-		t.span.SetStatus(codes.Ok, "")
-	}
+	t.span.RecordError(err)
 }
 
 func (t *otelTrace) End() {
 	t.op.Finish(nil)
 
-	t.AddError(t.op.Err())
-	t.span.End()
+	err := t.op.Err()
+	t.AddError(err)
+
+	if err != nil {
+		t.span.SetStatus(codes.Error, err.Error())
+	} else {
+		t.span.SetStatus(codes.Ok, "")
+	}
+
+	t.span.End(trace.WithTimestamp(*t.op.FinishedAt()), trace.WithStackTrace(err != nil))
 }
 
 func (t *otelTrace) EndError(err error) {
